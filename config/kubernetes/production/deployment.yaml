@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kubernetes-pod-chaos-monkey
+spec:
+  selector:
+    matchLabels:
+      app: kubernetes-pod-chaos-monkey
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kubernetes-pod-chaos-monkey
+    spec:
+      containers:
+      - name: kubernetes-pod-chaos-monkey
+        image: kubernetes-pod-chaos-monkey
+        imagePullPolicy: Always
