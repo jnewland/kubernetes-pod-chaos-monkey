@@ -4,6 +4,8 @@ This repository contains a `Dockerfile` and associated Kubernetes configuration 
 
 An image built from the `Dockerfile` in this repository is available on Docker Hub as [`jnewland/kubernetes-pod-chaos-monkey`](https://hub.docker.com/r/jnewland/kubernetes-pod-chaos-monkey/).
 
+Example Kubernetes config is included at [`config/kubernetes/production/deployment.yaml`](./config/kubernetes/production/deployment.yaml)
+
 ## License
 
 [MIT](./LICENSE.md)
