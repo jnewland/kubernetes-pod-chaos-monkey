@@ -4,9 +4,22 @@ This repository contains a `Dockerfile` and associated Kubernetes configuration 
 
 An image built from the `Dockerfile` in this repository is available on Docker Hub as [`jnewland/kubernetes-pod-chaos-monkey`](https://hub.docker.com/r/jnewland/kubernetes-pod-chaos-monkey/).
 
+### Configuration
+
+A few environment variables are available for configuration:
+
+* `DELAY`: seconds between selecting and deleting a pod. Defaults to `30`.
+* `NAMESPACE`: the namespace to select a pod from. Defaults to `default`.
+
 Example Kubernetes config is included at [`config/kubernetes/production/deployment.yaml`](./config/kubernetes/production/deployment.yaml)
 
+### Example
+
 ```bash
+$ kubectl apply -f config/kubernetes/production/deployment.yaml
+deployment "kubernetes-pod-chaos-monkey" created
+$ kubectl get pods | grep chaos
+kubernetes-pod-chaos-monkey-3294408070-6w6oh   1/1       Running       0          19s
 $ kubectl logs kubernetes-pod-chaos-monkey-3294408070-6w6oh
 + : 30
 + : default
