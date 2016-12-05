@@ -3,17 +3,22 @@
 set -ex
 
 : ${DELAY:=30}
-: ${NAMESPACE:=default}
+
+rand_resource() {
+  shuf | head -n 1
+}
+
+kubectl_cmd() {
+  kubectl -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' "$@"
+}
 
 while true; do
-  kubectl \
-    --namespace "${NAMESPACE}" \
-    -o 'jsonpath={.items[*].metadata.name}' \
-    get pods | \
-      tr " " "\n" | \
-      shuf | \
-      head -n 1 |
-      xargs -t --no-run-if-empty \
-        kubectl --namespace "${NAMESPACE}" delete pod
+  NAMESPACE=$(kubectl_cmd get namespaces | grep -v 'kube-system' | rand_resource)
+
+  kubectl_cmd --namespace "$NAMESPACE" get pods | \
+    rand_resource | \
+    xargs -t --no-run-if-empty \
+      kubectl --namespace "${NAMESPACE}" delete pod
+
   sleep "${DELAY}"
 done
