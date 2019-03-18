@@ -9,7 +9,8 @@ while true; do
   kubectl \
     --namespace "${NAMESPACE}" \
     -o 'jsonpath={.items[*].metadata.name}' \
-    get pods | \
+    get pods \
+    --selector="${TAG}"="${VALUE}" | \
       tr " " "\n" | \
       shuf | \
       head -n 1 |

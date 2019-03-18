@@ -10,10 +10,26 @@ A few environment variables are available for configuration:
 
 * `DELAY`: seconds between selecting and deleting a pod. Defaults to `30`.
 * `NAMESPACE`: the namespace to select a pod from. Defaults to `default`.
+* `TAG` and `VALUE`: can be set to choose a specific pod within all your deployments. For example if you tag your app like frontend and backend and only want to apply the chaos on the frontend.
 
 Example Kubernetes config is included at [`config/kubernetes/production/deployment.yaml`](./config/kubernetes/production/deployment.yaml)
 
 ### Example
+
+From this manifest:
+
+```
+        - name: TAG
+          value: name
+        - name: VALUE
+          value: node-micro
+        - name: NAMESPACE
+          value: default
+        - name: DELAY
+          value: '30'
+```
+
+You will see something like this 
 
 ```bash
 $ kubectl apply -f config/kubernetes/production/deployment.yaml
@@ -24,13 +40,13 @@ $ kubectl logs kubernetes-pod-chaos-monkey-3294408070-6w6oh
 + : 30
 + : default
 + true
-+ xargs -t --no-run-if-empty kubectl --namespace default delete pod
-+ head -n 1
++ kubectl --namespace default -o 'jsonpath={.items[*].metadata.name}' get pods --selector=name=node-micro
 + shuf
++ xargs -t --no-run-if-empty kubectl --namespace default delete pod
 + tr ' ' '\n'
-+ kubectl --namespace default -o 'jsonpath={.items[*].metadata.name}' get pods
-kubectl --namespace default delete pod dd-agent-3hw6w
-pod "dd-agent-3hw6w" deleted
++ head -n 1
+kubectl --namespace default delete pod node-micro-696b7b46f5-7bzj2 
+pod "node-micro-696b7b46f5-7bzj2" deleted
 + sleep 30
 ```
 
