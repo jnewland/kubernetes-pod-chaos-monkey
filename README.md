@@ -10,26 +10,10 @@ A few environment variables are available for configuration:
 
 * `DELAY`: seconds between selecting and deleting a pod. Defaults to `30`.
 * `NAMESPACE`: the namespace to select a pod from. Defaults to `default`.
-* `TAG` and `VALUE`: can be set to choose a specific pod within all your deployments. For example if you tag your app like frontend and backend and only want to apply the chaos on the frontend.
 
 Example Kubernetes config is included at [`config/kubernetes/production/deployment.yaml`](./config/kubernetes/production/deployment.yaml)
 
 ### Example
-
-From this manifest:
-
-```
-        - name: TAG
-          value: name
-        - name: VALUE
-          value: node-micro
-        - name: NAMESPACE
-          value: default
-        - name: DELAY
-          value: '30'
-```
-
-You will see something like this 
 
 ```bash
 $ kubectl apply -f config/kubernetes/production/deployment.yaml
@@ -40,14 +24,75 @@ $ kubectl logs kubernetes-pod-chaos-monkey-3294408070-6w6oh
 + : 30
 + : default
 + true
-+ kubectl --namespace default -o 'jsonpath={.items[*].metadata.name}' get pods --selector=name=node-micro
-+ shuf
 + xargs -t --no-run-if-empty kubectl --namespace default delete pod
-+ tr ' ' '\n'
 + head -n 1
-kubectl --namespace default delete pod node-micro-696b7b46f5-7bzj2 
-pod "node-micro-696b7b46f5-7bzj2" deleted
++ shuf
++ tr ' ' '\n'
++ kubectl --namespace default -o 'jsonpath={.items[*].metadata.name}' get pods
+kubectl --namespace default delete pod dd-agent-3hw6w
+pod "dd-agent-3hw6w" deleted
 + sleep 30
+```
+
+### Advance usage
+
+The deployment can be configured to select specific pods using labels. The chaos script support both ways to refer this labels. To know more about this labels, please refer to [labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api) doc.
+
+In order to use this feature set up in the manifest this environment variables:
+
+* `SELECTOR_MODE`: choose between _equality-based_ or _set-based_.
+* `SELECTOR`: write the label selector here.
+
+Those variables are **completely optional** and can be left without a value.
+
+Some examples:
+
+* with _equality-based_
+
+```
+- name: SELECTOR_MODE
+  value: equality-based  
+- name: SELECTOR
+  value: environment=production,tier=frontend
+```
+
+* with _set-based_
+
+```
+- name: SELECTOR_MODE
+  value: set-based  
+- name: SELECTOR
+  value: environment in (production),tier in (frontend)
+```
+
+With this changes, you'll see the following output
+
+```bash
++ : 30
++ : default
++ true
++ kubectl --namespace default -o 'jsonpath={.items[*].metadata.name}' get pods --selector environment=production,tier=frontend
++ shuf
++ head -n 1
++ tr ' ' '\n'
++ xargs -t --no-run-if-empty kubectl --namespace default delete pod
+kubectl --namespace default delete pod hello-world 
+pod "hello-world" deleted
+```
+
+With _set-based_
+
+```bash
++ : 30
++ : default
++ true
++ kubectl --namespace default -o 'jsonpath={.items[*].metadata.name}' get pods --selector 'environment in (production),tier in (frontend)'
++ shuf
++ tr ' ' '\n'
++ xargs -t --no-run-if-empty kubectl --namespace default delete pod
++ head -n 1
+kubectl --namespace default delete pod hello-world 
+pod "hello-world" deleted
 ```
 
 ## License
