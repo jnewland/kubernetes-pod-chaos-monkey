@@ -6,12 +6,13 @@ set -ex
 : ${NAMESPACE:=default}
 : ${FORCE:=false}
 
+if [ "${FORCE}" == "true" ]; then
+  CMD_FORCE="--force --grace-period=0"
+else
+  CMD_FORCE=""
+fi
+
 while true; do
-  if [ "${FORCE}" == "true" ]; then
-    CMD_FORCE="--force --grace-period=0"
-  else
-    CMD_FORCE=""
-  fi
   kubectl \
     --namespace "${NAMESPACE}" \
     -o 'jsonpath={.items[*].metadata.name}' \
