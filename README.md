@@ -10,6 +10,7 @@ A few environment variables are available for configuration:
 
 * `DELAY`: seconds between selecting and deleting a pod. Defaults to `30`.
 * `NAMESPACE`: the namespace to select a pod from. Defaults to `default`.
+* `FORCE`: delete pods with `--force` and `--grace-period=0`. Defaults to `false`.
 
 Example Kubernetes config is included at [`config/kubernetes/production/deployment.yaml`](./config/kubernetes/production/deployment.yaml)
 
